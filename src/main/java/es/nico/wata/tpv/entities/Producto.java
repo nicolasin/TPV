@@ -1,12 +1,31 @@
 package es.nico.wata.tpv.entities;
 import java.util.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+@Entity
+@Table(name="Productos")
 public class Producto {
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	Long id;
+	@Column(name="nombre")
 	String nombre;
+	@Column(name="precio")
 	double precio;
-	Set<Categoria> categorias = new HashSet<Categoria>();
-	String descripccon;
+	@ManyToMany(cascade=CascadeType.ALL)
+	@JoinTable(name="CategoriasProductos",joinColumns= {@JoinColumn(name="idProducto")}, inverseJoinColumns= {@JoinColumn(name="idCategoria")})
+	Set<Categoria> categorias = new HashSet<>();
+	@Column(name="descripcion")
+	String descripcion;
 	
 	public Producto() {}
 	public Producto(String nombre, double precio) {
@@ -37,15 +56,15 @@ public class Producto {
 		this.categorias = categorias;
 	}
 	public String getDescripccon() {
-		return descripccon;
+		return descripcion;
 	}
 	public void setDescripccon(String descripccon) {
-		this.descripccon = descripccon;
+		this.descripcion = descripccon;
 	}
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", categorias=" + categorias
-				+ ", descripccon=" + descripccon + "]";
+				+ ", descripccon=" + descripcion + "]";
 	}
 	
 	

@@ -1,17 +1,32 @@
 package es.nico.wata.tpv.entities;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Descuentos")
 public class Descuento {
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	Long id;
+	@Column(name="nombre")
 	String nombre;
+	@Column(name="porcentaje")
 	Long porcentaje;
-	String descripccion;
+	@Column(name="descripcion")
+	String descripcion;
+	
 	public Descuento() {
 		
 	}
 	public Descuento(String nombre, Long porcentaje, String descripccion) {
 		this.nombre = nombre;
 		this.porcentaje = porcentaje;
-		this.descripccion = descripccion;
+		this.descripcion = descripccion;
 	}
 	public Long getId() {
 		return id;
@@ -32,15 +47,15 @@ public class Descuento {
 		this.porcentaje = porcentaje;
 	}
 	public String getDescripccion() {
-		return descripccion;
+		return descripcion;
 	}
 	public void setDescripccion(String descripccion) {
-		this.descripccion = descripccion;
+		this.descripcion = descripccion;
 	}
 	@Override
 	public String toString() {
 		return "Descuento [id=" + id + ", nombre=" + nombre + ", porcentaje=" + porcentaje + ", descripccion="
-				+ descripccion + "]";
+				+ descripcion + "]";
 	}
 	
 }

@@ -1,23 +1,48 @@
 package es.nico.wata.tpv.entities;
 import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+@Entity
+@Table(name="Pedidos")
 public class Pedido {
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	long id;
+	@Column(name="fecha")
 	LocalDate fecha;
+	@Column(name="total")
 	double total;
-	Mesa mesa;
-	FormaDePago formadePago;
+	@Column(name="pagado")
 	boolean estaPagado;
+	@Column(name="descripcion")
+	String descripccion;
+	@OneToOne
+	@JoinColumn(name="idMesa")
+	Mesa mesa;
 	
+	@OneToOne
+	@JoinColumn(name="idFormaPago")
+	FormaDePago formadePago;
+	
+	@OneToOne
+	@JoinColumn(name="idDescuento")
 	Descuento descuento;
-	String Descripccion;
+	
 	
 	public Pedido() {
 	}
 	@Override
 	public String toString() {
 		return "Pedido [id=" + id + ", fecha=" + fecha + ", total=" + total + ", mesa=" + mesa + ", formadePago="
-				+ formadePago + ", estaPagado=" + estaPagado + ", descuento=" + descuento + ", Descripccion="
-				+ Descripccion + "]";
+				+ "formadePago" + ", estaPagado=" + estaPagado + ", descuento=" + "descuento" + ", Descripccion="
+				+ descripccion + "]";
 	}
 	public long getId() {
 		return id;
@@ -43,6 +68,7 @@ public class Pedido {
 	public void setMesa(Mesa mesa) {
 		this.mesa = mesa;
 	}
+	
 	public FormaDePago getFormadePago() {
 		return formadePago;
 	}
@@ -55,6 +81,7 @@ public class Pedido {
 	public void setEstaPagado(boolean estaPagado) {
 		this.estaPagado = estaPagado;
 	}
+	
 	public Descuento getDescuento() {
 		return descuento;
 	}
@@ -62,10 +89,10 @@ public class Pedido {
 		this.descuento = descuento;
 	}
 	public String getDescripccion() {
-		return Descripccion;
+		return descripccion;
 	}
 	public void setDescripccion(String descripccion) {
-		Descripccion = descripccion;
+		this.descripccion = descripccion;
 	}
 	
 	

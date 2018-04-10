@@ -1,12 +1,30 @@
 package es.nico.wata.tpv.entities;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import javax.persistence.Table;
+
+
+@Entity
+@Table(name="Mesas")
+
 public class Mesa {
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	Long id;
+	@Column(name="nombre")
 	String nombre;
+
 	public Mesa() {}
 	public Mesa(String nombre) {
 		
 	}
+	
+	
 	public Long getId() {
 		return id;
 	}
