@@ -22,6 +22,7 @@ public class PedidoProducto {
 	@OneToOne
 	@JoinColumn(name="idPedido")
 	Pedido pedido;
+	
 	public PedidoProducto() {
 		
 	}

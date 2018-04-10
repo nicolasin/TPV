@@ -17,14 +17,13 @@ public class Principal {
 		emf = Persistence.createEntityManagerFactory("mysql");
 		EntityManager manager = emf.createEntityManager();
 		
-		manager.getTransaction().begin();
-		Pedido unPedido = manager.find(Pedido.class, 7L);
-		Producto prod1 = manager.find(Producto.class, 1L);
-		Producto prod2 = manager.find(Producto.class, 3L);
-		unPedido.getProductospedido().add(new PedidoProducto(unPedido, prod1, 2));
-		unPedido.getProductospedido().add(new PedidoProducto(unPedido, prod2, 1));
 		
-		manager.persist(unPedido);
+		manager.getTransaction().begin();
+		Producto producto = manager.find(Producto.class, 1L);
+		System.out.println(producto);
+		producto.getPedidos().forEach(System.out::println);;
+		
+		
 		manager.getTransaction().commit();
 		manager.close();
 		

@@ -53,8 +53,10 @@ public class Pedido {
 
 	@Override
 	public String toString() {
-		return "Pedido [id=" + id + ", fecha=" + fecha + ", total=" + total + ", mesa=" + mesa + ", formadePago="
-				+ "formadePago" + ", estaPagado=" + estaPagado + ", descuento=" + "descuento" + ", Descripccion="
+		return "Pedido [id=" + id + ", fecha=" + fecha + ", total=" + total + ", "
+				+ "\n mesa=" + mesa.getNombre() + ", formadePago="
+				+ formadePago.getNombre() + ", estaPagado=" + estaPagado + ", "
+						+ "\n descuento=" + descuento.getNombre() + ", Descripccion="
 				+ descripccion + "]";
 	}
 	public long getId() {
