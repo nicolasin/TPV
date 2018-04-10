@@ -1,12 +1,34 @@
 package es.nico.wata.tpv.entities;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+@Entity
+@Table(name="PedidosProductos")
 public class PedidoProducto {
+	@Id
+	@GeneratedValue
+	@Column(name="id")
 	Long id;
+	@Column(name="Cantidad")
 	double cantidad;
+	@OneToOne
+	@JoinColumn(name="idProducto")
 	Producto producto;
+	@OneToOne
+	@JoinColumn(name="idPedido")
 	Pedido pedido;
 	public PedidoProducto() {
 		
+	}
+	public PedidoProducto(Pedido pedido ,Producto producto, double cantidad) {
+		this.producto = producto;
+		this.pedido = pedido;
+		this.cantidad = cantidad;
 	}
 	public Long getId() {
 		return id;
@@ -34,8 +56,7 @@ public class PedidoProducto {
 	}
 	@Override
 	public String toString() {
-		return "PedidoProducto [id=" + id + ", cantidad=" + cantidad + ", producto=" + producto + ", pedido=" + pedido
-				+ "]";
+		return "Pedido: "+pedido.getId() +", Producto: "+ producto.getNombre()+" ["+cantidad+ "]";
 	}
 	
 	

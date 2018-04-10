@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 @Entity
 @Table(name="Productos")
@@ -26,7 +27,29 @@ public class Producto {
 	Set<Categoria> categorias = new HashSet<>();
 	@Column(name="descripcion")
 	String descripcion;
+	@OneToMany(mappedBy="producto")
+	Set<ComponenteProducto> componentes = new HashSet<>();
+	@OneToMany(mappedBy="pedido")
+	Set<PedidoProducto> pedidosproducto = new HashSet<>();
+	public String getDescripcion() {
+		return descripcion;
+	}
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+	public Set<ComponenteProducto> getComponentes() {
+		return componentes;
+	}
 	
+	public Set<PedidoProducto> getPedidos() {
+		return pedidosproducto;
+	}
+	public void setPedidos(Set<PedidoProducto> pedidos) {
+		this.pedidosproducto = pedidos;
+	}
+	public void setComponentes(Set<ComponenteProducto> componentes) {
+		this.componentes = componentes;
+	}
 	public Producto() {}
 	public Producto(String nombre, double precio) {
 		

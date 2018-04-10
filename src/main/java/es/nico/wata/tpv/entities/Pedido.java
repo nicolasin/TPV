@@ -1,11 +1,14 @@
 package es.nico.wata.tpv.entities;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 @Entity
@@ -19,6 +22,8 @@ public class Pedido {
 	LocalDate fecha;
 	@Column(name="total")
 	double total;
+	@OneToMany(mappedBy="producto")
+	Set<PedidoProducto> productospedido = new HashSet<>();
 	@Column(name="pagado")
 	boolean estaPagado;
 	@Column(name="descripcion")
@@ -35,9 +40,17 @@ public class Pedido {
 	@JoinColumn(name="idDescuento")
 	Descuento descuento;
 	
-	
 	public Pedido() {
 	}
+
+	public Set<PedidoProducto> getProductospedido() {
+		return productospedido;
+	}
+
+	public void setProductospedido(Set<PedidoProducto> productospedido) {
+		this.productospedido = productospedido;
+	}
+
 	@Override
 	public String toString() {
 		return "Pedido [id=" + id + ", fecha=" + fecha + ", total=" + total + ", mesa=" + mesa + ", formadePago="
@@ -94,6 +107,27 @@ public class Pedido {
 	public void setDescripccion(String descripccion) {
 		this.descripccion = descripccion;
 	}
-	
+	public void addProducto(Producto p, double cantidad) {
+		boolean encontrado = false;
+		for(PedidoProducto x: this.productospedido) {
+			if(x.getProducto().equals(p)) {
+				x.setCantidad(x.getCantidad()+cantidad);
+				encontrado = true;
+			}
+		}
+		if(!encontrado) {
+			this.productospedido.add(new PedidoProducto(this, p, cantidad));
+		}
+	}
+	public void removeProducto(Producto p, double cantidad) {
+		for(PedidoProducto x: this.productospedido) {
+			if(x.getProducto().equals(p)) {
+				x.setCantidad(x.getCantidad()-cantidad);
+				if(x.getCantidad()==0) {
+					productospedido.remove(x);
+				}
+			}
+		}
+	}
 	
 }

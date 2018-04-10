@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 @Entity
 @Table(name="Componentes")
@@ -25,6 +26,8 @@ public class Componente {
 	String descripcion;
 	@Column(name="stock")
 	Long stock;
+	@OneToMany(mappedBy="componente")
+	Set<ComponenteProducto> productos = new HashSet<>();
 	public Componente() {
 		
 	}
@@ -33,6 +36,13 @@ public class Componente {
 		this.descripcion = descripcion;
 		this.stock = stock;
 		
+	}
+	
+	public Set<ComponenteProducto> getProductos() {
+		return productos;
+	}
+	public void setProductos(Set<ComponenteProducto> productos) {
+		this.productos = productos;
 	}
 	public Long getId() {
 		return id;
