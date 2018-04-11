@@ -1,32 +1,17 @@
 package es.nico.wata.tpv.main;
 
+import java.util.Scanner;
 
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
-import es.nico.wata.tpv.entities.Pedido;
-import es.nico.wata.tpv.entities.PedidoProducto;
-import es.nico.wata.tpv.entities.Producto;
-
+import es.nico.wata.tpv.controladores.ControlAlergeno;
 
 public class Principal {
-	private static EntityManagerFactory  emf;
-	public static void main(String [] args) {
-		emf = Persistence.createEntityManagerFactory("mysql");
-		EntityManager manager = emf.createEntityManager();
-		
-		
-		manager.getTransaction().begin();
-		Producto producto = manager.find(Producto.class, 1L);
-		System.out.println(producto);
-		producto.getPedidos().forEach(System.out::println);;
-		
-		
-		manager.getTransaction().commit();
-		manager.close();
-		
 
+	public static void main(String [] args)throws Exception {
+		ControlAlergeno.listAlergenos().forEach(System.out::println);
+		System.out.println("Deme alergeno a borrar");
+		Scanner s = new Scanner(System.in);
+		Long id = s.nextLong();
+		ControlAlergeno.remove(id);
+		
 	}
 }
