@@ -8,10 +8,10 @@ import es.nico.wata.tpv.entities.Alergeno;
 import es.nico.wata.tpv.exceptions.IDNotFound;
 
 import java.util.*;
+
 public class ControlAlergeno {
-	private static EntityManagerFactory  emf = Persistence.createEntityManagerFactory("mysql");;
-	
-	
+	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("mysql");
+
 	public static void add(String name) {
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
@@ -19,27 +19,32 @@ public class ControlAlergeno {
 		manager.getTransaction().commit();
 		manager.close();
 	}
+
 	public static void remove(Long id) throws IDNotFound {
+		Alergeno alergeno = null;
 		EntityManager manager = emf.createEntityManager();
-		manager.getTransaction().begin();
+
 		try {
-		manager.remove(manager.find(Alergeno.class,id));
-		}catch(Exception e) {
+			manager.getTransaction().begin();
+			alergeno = manager.find(Alergeno.class, id);
+			if (alergeno != null) {
+				manager.remove(alergeno);
+			}
+			manager.getTransaction().commit();
+		} catch (Exception e) {
 			throw new IDNotFound("Alergeno id not found");
+		} finally {
+			manager.close();
 		}
-		manager.getTransaction().commit();
-		manager.close();
+
 	}
+
 	@SuppressWarnings("unchecked")
-	public static List<Alergeno> listAlergenos(){
+	public static List<Alergeno> listAlergenos() {
 		EntityManager manager = emf.createEntityManager();
-		List<Alergeno> alergenos = (List<Alergeno>)manager.createQuery("from Alergeno").getResultList();
-		List<String> paraRetornar = new ArrayList<String>();
-		for(Alergeno x: alergenos) {
-			paraRetornar.add(x.toString());
-		}
+		List<Alergeno> alergenos = (List<Alergeno>) manager.createQuery("from Alergeno").getResultList();
 		manager.close();
 		return alergenos;
 	}
-	
+
 }
