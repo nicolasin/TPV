@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 @Entity
-@Table(name="Categoria")
+@Table(name="Categorias")
 public class Categoria implements Serializable{
 	private static final long serialVersionUID = 2254120630994200045L;
 	@Id

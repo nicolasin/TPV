@@ -1,116 +1,106 @@
 package es.nico.wata.tpv.controladores;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import es.nico.wata.tpv.entities.Componente;
-import es.nico.wata.tpv.exceptions.IDNotFound;
+import es.nico.wata.tpv.exceptions.ControlException;
+import es.nico.wata.tpv.exceptions.EntityExist;
+import es.nico.wata.tpv.exceptions.IncorrectEntity;
+import es.nico.wata.tpv.interfaces.ControlInterface;
 
-public class ControlComponente {
-	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("mysql");
-
-	public static void insert(String nombre, String descripccion, long Stock) {
+public class ControlComponente implements ControlInterface<Componente, Long> {
+	private static EntityManagerFactory emf;
+	private final String GETALL = "From Componente";
+	public ControlComponente(String persistence) {
+		emf = Persistence.createEntityManagerFactory(persistence);
+	}
+	@Override
+	public void insert(Componente t) throws ControlException {
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
-		Componente componente = new Componente(nombre, descripccion, Stock);
-		manager.persist(componente);
-		manager.getTransaction().commit();
-		manager.close();
+		try {
+			manager.persist(t);
+			manager.getTransaction().commit();
+		} catch (EntityExistsException e) {
+			throw new EntityExist("This Entity exist yet");
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectEntity("This class is not Entity");
+		} finally {
+			manager.close();
+		}
+		
 	}
 
-	public static void delete(long id) throws IDNotFound {
-		EntityManager manager = emf.createEntityManager();
-		Componente componente = null;
-		manager.getTransaction().begin();
-		try {
-			componente = manager.find(Componente.class, id);
-			if (componente != null) {
-				manager.remove(componente);
-			}
-			manager.getTransaction().commit();
-		} catch (Exception e) {
-			throw new IDNotFound("Componente ID not found");
-		} finally {
-			manager.close();
-		}
-	}
-
-	public static List<Componente> getAll() {
-		EntityManager manager = emf.createEntityManager();
-		List<Componente> componentes = (List<Componente>) manager.createQuery("from Componente").getResultList();
-		manager.close();
-		return componentes;
-	}
-
-	public static Componente getOne(long id) throws IDNotFound {
-		EntityManager manager = emf.createEntityManager();
-		Componente componente = null;
-
-		try {
-			manager.getTransaction().begin();
-			componente = manager.find(Componente.class, id);
-			manager.getTransaction().commit();
-		} catch (Exception e) {
-			throw new IDNotFound("Componente Not Found");
-		} finally {
-			manager.close();
-		}
-		return componente;
-	}
-	public static void modifyStock(long id, long stock)throws IDNotFound {
-		EntityManager manager = emf.createEntityManager();
-		Componente componente = null;
-		try {
-			manager.getTransaction().begin();
-			componente = manager.find(Componente.class, id);
-			componente.setStock(stock);
-			manager.merge(componente);
-			manager.getTransaction().commit();
-		} catch (Exception e) {
-			throw new IDNotFound("Componente Not Found");
-		} finally {
-			manager.close();
-		}
-	}
-	public static void modifyStock(long id, String nombre)throws IDNotFound {
-		EntityManager manager = emf.createEntityManager();
-		Componente componente = null;
-		try {
-			manager.getTransaction().begin();
-			componente = manager.find(Componente.class, id);
-			componente.setNombre(nombre);
-			manager.merge(componente);
-			manager.getTransaction().commit();
-		} catch (Exception e) {
-			throw new IDNotFound("Componente Not Found");
-		} finally {
-			manager.close();
-		}
-	}
-	public static void modifyDescripcion(long id, String descripcion)throws IDNotFound {
-		EntityManager manager = emf.createEntityManager();
-		Componente componente = null;
-		try {
-			manager.getTransaction().begin();
-			componente = manager.find(Componente.class, id);
-			componente.setDescripcion(descripcion);
-			manager.merge(componente);
-			manager.getTransaction().commit();
-		} catch (Exception e) {
-			throw new IDNotFound("Componente Not Found");
-		} finally {
-			manager.close();
-		}
-	}
-	public static void modify(Componente c) {
+	@Override
+	public Componente getOne(Long i) throws ControlException {
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
-		manager.merge(c);
-		manager.getTransaction().commit();
-		manager.close();
+		Componente t = null;
+		try {
+			t = manager.find(Componente.class, i);
+			manager.getTransaction().commit();
+
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectEntity("Incorrect Entity type");
+		} finally {
+			manager.close();
+		}
+		return t;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Componente> getAll() throws ControlException {
+		List<Componente> listElements = new ArrayList<Componente>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		try {
+			listElements = (List<Componente>) manager.createQuery(GETALL).getResultList();
+			manager.getTransaction().commit();
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectEntity("Type of Entity is Incorrect");
+		} finally {
+			manager.close();
+		}
+
+		return listElements;
+	}
+
+	@Override
+	public void remove(Long i) throws ControlException {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		try {
+			Componente t = manager.find(Componente.class,i);
+			manager.remove(t);
+			manager.getTransaction().commit();
+		}catch(IllegalArgumentException e) {
+			throw new IncorrectEntity("Incorrect Entity type");
+		}finally {
+			manager.close();
+		}
+		
+	}
+
+	@Override
+	public void modify(Componente t) throws ControlException {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		try {
+			manager.merge(t);
+			manager.getTransaction().commit();
+		}catch(IllegalArgumentException e) {
+			throw new IncorrectEntity("Incorrect Entity type");
+		}finally {
+			manager.close();
+		}
+		
 	}
 	
 }
