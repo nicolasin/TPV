@@ -6,6 +6,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import es.nico.wata.tpv.entities.Alergeno;
+import es.nico.wata.tpv.entities.Componente;
 import es.nico.wata.tpv.exceptions.*;
 import es.nico.wata.tpv.interfaces.ControlInterface;
 
@@ -98,5 +99,15 @@ public class ControlAlergeno implements ControlInterface<Alergeno, Long> {
 			manager.close();
 		}
 	}
-
+	
+	public List<Componente> listComponenteWithAlergeno(Alergeno t)throws ControlException{
+		List<Componente> componentes = new ArrayList<Componente>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		t = manager.merge(t);
+		componentes.addAll(t.getComponentes());
+		manager.getTransaction().commit();
+		manager.close();
+		return componentes;
+	}
 }

@@ -4,17 +4,21 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import net.bytebuddy.dynamic.loading.ClassReloadingStrategy.Strategy;
+
 import java.util.*;
 @Entity
 @Table(name="Alergenos")
 public class Alergeno implements Serializable{
 
 	private static final long serialVersionUID = 8170724969518059162L;
-	@Id
-	@GeneratedValue
+	@Id 
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id")
 	Long id;
 	@Column(name="nombre")
@@ -45,6 +49,18 @@ public class Alergeno implements Serializable{
 	}
 	public void setComponentes(Set<Componente> componentes) {
 		this.componentes = componentes;
+	}
+	public void addComponente(Componente c) {
+		if(!componentes.contains(c)) {
+			componentes.add(c);
+			c.addAlergeno(this);
+		}
+	}
+	public void removeComponente(Componente c) {
+		if(componentes.contains(c)) {
+			componentes.remove(c);
+			c.removeAlergeno(this);
+		}
 	}
 	@Override
 	public String toString() {

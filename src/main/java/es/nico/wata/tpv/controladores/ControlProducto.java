@@ -3,11 +3,13 @@ package es.nico.wata.tpv.controladores;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import es.nico.wata.tpv.entities.Alergeno;
 import es.nico.wata.tpv.entities.Producto;
 import es.nico.wata.tpv.exceptions.ControlException;
 import es.nico.wata.tpv.exceptions.EntityExist;
@@ -103,5 +105,17 @@ public class ControlProducto implements ControlInterface<Producto, Long> {
 			manager.close();
 		}
 
+	}
+	@SuppressWarnings("unchecked")
+	public List<Producto> productosConAlergeno(Alergeno a){
+		List<Producto> productosAlergeno = new ArrayList<Producto>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		a = manager.merge(a);
+		// Select Nombre from Productos where id IN (Select idProducto from ComponentesProductos where
+		// idComponente IN(Select idComponentes from ComponentesAlergenos where idAlergenos = 2) group by idProducto )
+		productosAlergeno = (List<Producto>)manager.createQuery("from Producto p where p.componentes.componente.alergenos.id = "+a.getId()).getResultList();
+		
+		return productosAlergeno;
 	}
 }

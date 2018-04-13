@@ -1,7 +1,10 @@
 package es.nico.wata.tpv.controladores;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
@@ -103,5 +106,22 @@ public class ControlPedido implements ControlInterface<Pedido, Long> {
 			manager.close();
 		}
 
+	}
+	public Map<Producto, Integer> listProductosPedido(Pedido p) {
+		Map<Producto,Integer> productos = new TreeMap<Producto, Integer>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		Pedido aux = manager.find(Pedido.class, p.getId());
+		
+		System.out.println(aux.getProductospedido().size());
+		
+		
+		
+		for(PedidoProducto x :aux.getProductospedido()) {
+			productos.put(x.getProducto(),(int) x.getCantidad());
+		}
+		manager.getTransaction().commit();
+		manager.close();
+		return productos;
 	}
 }

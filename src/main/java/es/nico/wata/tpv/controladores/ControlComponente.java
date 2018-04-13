@@ -8,7 +8,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import es.nico.wata.tpv.entities.Alergeno;
 import es.nico.wata.tpv.entities.Componente;
+import es.nico.wata.tpv.entities.Producto;
 import es.nico.wata.tpv.exceptions.ControlException;
 import es.nico.wata.tpv.exceptions.EntityExist;
 import es.nico.wata.tpv.exceptions.IncorrectEntity;
@@ -17,9 +19,11 @@ import es.nico.wata.tpv.interfaces.ControlInterface;
 public class ControlComponente implements ControlInterface<Componente, Long> {
 	private static EntityManagerFactory emf;
 	private final String GETALL = "From Componente";
+
 	public ControlComponente(String persistence) {
 		emf = Persistence.createEntityManagerFactory(persistence);
 	}
+
 	@Override
 	public void insert(Componente t) throws ControlException {
 		EntityManager manager = emf.createEntityManager();
@@ -34,7 +38,7 @@ public class ControlComponente implements ControlInterface<Componente, Long> {
 		} finally {
 			manager.close();
 		}
-		
+
 	}
 
 	@Override
@@ -77,15 +81,15 @@ public class ControlComponente implements ControlInterface<Componente, Long> {
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
 		try {
-			Componente t = manager.find(Componente.class,i);
+			Componente t = manager.find(Componente.class, i);
 			manager.remove(t);
 			manager.getTransaction().commit();
-		}catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			throw new IncorrectEntity("Incorrect Entity type");
-		}finally {
+		} finally {
 			manager.close();
 		}
-		
+
 	}
 
 	@Override
@@ -95,12 +99,53 @@ public class ControlComponente implements ControlInterface<Componente, Long> {
 		try {
 			manager.merge(t);
 			manager.getTransaction().commit();
-		}catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			throw new IncorrectEntity("Incorrect Entity type");
-		}finally {
+		} finally {
 			manager.close();
 		}
-		
+
+	}
+
+	public void addAlergenoToComponente(Alergeno a, Componente c) {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		a = manager.merge(a);
+		c = manager.merge(c);
+		a.addComponente(c);
+		manager.getTransaction().commit();
+		manager.close();
+	}
+
+	public void removerAlergenoToComponente(Alergeno a, Componente c) {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		a = manager.merge(a);
+		c = manager.merge(c);
+		a.removeComponente(c);
+		manager.getTransaction().commit();
+		manager.close();
+	}
+
+	public List<Alergeno> listAlergenosFromComponente(Componente c) {
+		List<Alergeno> alergenos = new ArrayList<Alergeno>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		c = manager.merge(c);
+		alergenos.addAll(c.getAlergenos());
+		manager.getTransaction().commit();
+		manager.close();
+		return alergenos;
+	}
+	public List<Producto> listProductosWith(Componente c) {
+		List<Producto> productos = new ArrayList<Producto>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		c = manager.merge(c);
+		c.getProductos().forEach(x->productos.add(x.getProducto()));
+		manager.getTransaction().commit();
+		manager.close();
+		return productos;
 	}
 	
 }
