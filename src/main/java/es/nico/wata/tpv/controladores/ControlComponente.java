@@ -10,7 +10,6 @@ import javax.persistence.Persistence;
 
 import es.nico.wata.tpv.entities.Alergeno;
 import es.nico.wata.tpv.entities.Componente;
-import es.nico.wata.tpv.entities.Producto;
 import es.nico.wata.tpv.exceptions.ControlException;
 import es.nico.wata.tpv.exceptions.EntityExist;
 import es.nico.wata.tpv.exceptions.IncorrectEntity;
@@ -48,6 +47,21 @@ public class ControlComponente implements ControlInterface<Componente, Long> {
 		Componente t = null;
 		try {
 			t = manager.find(Componente.class, i);
+			manager.getTransaction().commit();
+
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectEntity("Incorrect Entity type");
+		} finally {
+			manager.close();
+		}
+		return t;
+	}
+	public List<Componente> getByName(String name) throws ControlException {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		List<Componente> t = new ArrayList<Componente>();
+		try {
+			t = manager.createQuery("from Componente c where c.nombre LIKE '%"+name+"%' ",Componente.class).getResultList();
 			manager.getTransaction().commit();
 
 		} catch (IllegalArgumentException e) {
@@ -127,25 +141,16 @@ public class ControlComponente implements ControlInterface<Componente, Long> {
 		manager.close();
 	}
 
-	public List<Alergeno> listAlergenosFromComponente(Componente c) {
-		List<Alergeno> alergenos = new ArrayList<Alergeno>();
-		EntityManager manager = emf.createEntityManager();
-		manager.getTransaction().begin();
-		c = manager.merge(c);
-		alergenos.addAll(c.getAlergenos());
-		manager.getTransaction().commit();
-		manager.close();
-		return alergenos;
-	}
-	public List<Producto> listProductosWith(Componente c) {
-		List<Producto> productos = new ArrayList<Producto>();
-		EntityManager manager = emf.createEntityManager();
-		manager.getTransaction().begin();
-		c = manager.merge(c);
-		c.getProductos().forEach(x->productos.add(x.getProducto()));
-		manager.getTransaction().commit();
-		manager.close();
-		return productos;
-	}
 	
+	
+	public List<Componente> listComponentsByAlergeno(Alergeno t)throws ControlException{
+		List<Componente> componentes = new ArrayList<Componente>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		t = manager.merge(t);
+		componentes.addAll(t.getComponentes());
+		manager.getTransaction().commit();
+		manager.close();
+		return componentes;
+	}
 }

@@ -1,5 +1,6 @@
 package es.nico.wata.tpv.entities;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,6 +33,17 @@ public class Producto {
 	Set<ComponenteProducto> componentes = new HashSet<>();
 	@OneToMany(mappedBy="pedido")
 	Set<PedidoProducto> pedidosproducto = new HashSet<>();
+	
+	public Producto() {}
+	public Producto(String nombre, double precio) {
+		this.nombre = nombre;
+		this.precio = precio;
+	}
+	public Producto(String nombre, double precio, Componente c) {
+		this.nombre = nombre;
+		this.precio = precio;
+		this.componentes.add(new ComponenteProducto(c, this, 1));
+	}
 	public String getDescripcion() {
 		return descripcion;
 	}
@@ -51,10 +63,7 @@ public class Producto {
 	public void setComponentes(Set<ComponenteProducto> componentes) {
 		this.componentes = componentes;
 	}
-	public Producto() {}
-	public Producto(String nombre, double precio) {
-		
-	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -90,5 +99,34 @@ public class Producto {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", descripccon=" + descripcion + "]";
 	}
 	
+	public void addCategoria(Categoria c) {
+		if(!categorias.contains(c)) {
+			categorias.add(c);
+			c.addProducto(this);
+		}
+	}
+	public void removeCategoria(Categoria c) {
+		if(categorias.contains(c)) {
+			categorias.remove(c);
+			c.removeProducto(this);
+		}
+	}
+	public void addComponente(Componente c, Long cantidad) {
+		System.out.println(c.toString());
+		boolean existe = componentes.stream().filter(x->x.getProducto().getId() == c.getId()).collect(Collectors.toList()).isEmpty();
+		
+		System.out.println(existe);
+		if(existe) {
+			componentes.add(new ComponenteProducto(c, this, cantidad));
+		}
+		componentes.forEach(System.out::println);
+	}
+	public void removeComponente(Componente c) {
+		ComponenteProducto cp = null;
+		cp = componentes.stream().filter(x->x.getComponente().getId()== c.getId()).findFirst().get();
+		if(cp!=null) {
+			componentes.remove(cp);
+		}
+	}
 	
 }

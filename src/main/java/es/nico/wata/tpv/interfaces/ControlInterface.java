@@ -1,5 +1,7 @@
 package es.nico.wata.tpv.interfaces;
 import java.util.*;
+
+import es.nico.wata.tpv.entities.Componente;
 import es.nico.wata.tpv.exceptions.*;
 public interface ControlInterface<T, I> {
 	public void insert(T t)throws ControlException;

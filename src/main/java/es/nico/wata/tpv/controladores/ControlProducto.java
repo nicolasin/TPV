@@ -2,14 +2,17 @@ package es.nico.wata.tpv.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import es.nico.wata.tpv.entities.Alergeno;
+import es.nico.wata.tpv.entities.Categoria;
+import es.nico.wata.tpv.entities.Componente;
+import es.nico.wata.tpv.entities.ComponenteProducto;
 import es.nico.wata.tpv.entities.Producto;
 import es.nico.wata.tpv.exceptions.ControlException;
 import es.nico.wata.tpv.exceptions.EntityExist;
@@ -107,15 +110,107 @@ public class ControlProducto implements ControlInterface<Producto, Long> {
 
 	}
 	@SuppressWarnings("unchecked")
-	public List<Producto> productosConAlergeno(Alergeno a){
+	public List<Producto> productsWithAlergen(Alergeno a){
 		List<Producto> productosAlergeno = new ArrayList<Producto>();
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
 		a = manager.merge(a);
-		// Select Nombre from Productos where id IN (Select idProducto from ComponentesProductos where
-		// idComponente IN(Select idComponentes from ComponentesAlergenos where idAlergenos = 2) group by idProducto )
-		productosAlergeno = (List<Producto>)manager.createQuery("from Producto p where p.componentes.componente.alergenos.id = "+a.getId()).getResultList();
-		
+		String sql =  "Select * from Productos where id IN (Select idProducto from ComponentesProductos where "+
+		"idComponente IN(Select idComponentes from ComponentesAlergenos where idAlergenos = "+a.getId()+") group by idProducto )";
+		productosAlergeno = (List<Producto>)manager.createNativeQuery(sql, Producto.class).getResultList();
 		return productosAlergeno;
 	}
+	public List<Producto> listProductsByComponent(Componente c) {
+		List<Producto> productos = new ArrayList<Producto>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		c = manager.merge(c);
+		c.getProductos().forEach(x->productos.add(x.getProducto()));
+		manager.getTransaction().commit();
+		manager.close();
+		return productos;
+	}
+	@SuppressWarnings("unchecked")
+	public List<Producto> listProductsByCategorie(Categoria c){
+		List<Producto> productosCategoria = new ArrayList<Producto>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		c = manager.merge(c);
+		String sqlQuery = "Select * from productos where id IN (Select idProducto from CategoriasProductos where idCategoria = "
+				+c.getId()+" ) ;";
+		productosCategoria = (List<Producto>)manager.createNativeQuery(sqlQuery, Producto.class).getResultList();
+		manager.close();
+		return productosCategoria;
+	}
+	public void addCategoriaToProducto(Categoria c, Producto p) {
+		EntityManager manager  = emf.createEntityManager();
+		manager.getTransaction().begin();
+		p = manager.merge(p);
+		c = manager.merge(c);
+		p.addCategoria(c);
+		manager.getTransaction().commit();
+		manager.close();
+	}
+	public void removeCategoriaToProducto(Categoria c, Producto p) {
+		EntityManager manager  = emf.createEntityManager();
+		manager.getTransaction().begin();
+		p = manager.merge(p);
+		c = manager.merge(c);
+		p.removeCategoria(c);
+		manager.getTransaction().commit();
+		manager.close();
+	}
+	public void addComponenteToProducto(Componente c, Long cantidad, Producto p) {
+		EntityManager manager  = emf.createEntityManager();
+		manager.getTransaction().begin();
+		
+		p = manager.merge(p);
+		c = manager.merge(c);
+		ComponenteProducto cp = new ComponenteProducto(c, p, cantidad);
+		manager.persist(cp);
+		p.getComponentes().add(cp);
+		c.getProductos().add(cp);
+		
+		manager.getTransaction().commit();
+		manager.close();
+	}
+	public void removeComponenteToProducto(Componente c, Producto p) {
+		EntityManager manager  = emf.createEntityManager();
+		manager.getTransaction().begin();
+		p = manager.merge(p);
+		c = manager.merge(c);
+		ComponenteProducto comProd=null;
+		for(ComponenteProducto cp: p.getComponentes()) {
+			if(cp.getComponente().getId()==c.getId()) {
+				comProd = cp;
+			}
+		}
+		if(comProd!=null) {
+			comProd = manager.merge(comProd);
+			manager.remove(comProd);
+		}
+		manager.getTransaction().commit();
+		manager.close();
+		
+	}
+
+	public List<Producto> getByName(String name) throws ControlException {
+		List<Producto> productos = new ArrayList<Producto>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		productos = manager.createQuery("from Producto p where p.nombre ILIKE '%"+name+"%' ", Producto.class).getResultList();
+		manager.close();
+		return productos;
+	}
+	public List<Componente> getComponentes(Producto p){
+		List<Componente> componentes = new ArrayList<Componente>();
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		p = manager.merge(p);
+		componentes.addAll(p.getComponentes().stream().map(x->x.getComponente()).collect(Collectors.toList()));
+		manager.close();
+		return componentes;
+	}
+
+	
 }

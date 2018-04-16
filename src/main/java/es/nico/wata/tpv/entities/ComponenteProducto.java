@@ -55,7 +55,6 @@ public class ComponenteProducto {
 	public void setCantidad(double cantidad) {
 		this.cantidad = cantidad;
 	}
-	
 	@Override
 	public String toString() {
 		return "ComponenteProducto [id=" + id + ", componente=" + componente.nombre + ", producto=" + producto.nombre + ", cantidad="

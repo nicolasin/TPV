@@ -1,10 +1,11 @@
 package es.nico.wata.tpv.controladores;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
@@ -107,21 +108,51 @@ public class ControlPedido implements ControlInterface<Pedido, Long> {
 		}
 
 	}
-	public Map<Producto, Integer> listProductosPedido(Pedido p) {
-		Map<Producto,Integer> productos = new TreeMap<Producto, Integer>();
+
+	public Set<PedidoProducto> getProductosPedido(Pedido p) {
 		EntityManager manager = emf.createEntityManager();
 		manager.getTransaction().begin();
-		Pedido aux = manager.find(Pedido.class, p.getId());
-		
-		System.out.println(aux.getProductospedido().size());
-		
-		
-		
-		for(PedidoProducto x :aux.getProductospedido()) {
-			productos.put(x.getProducto(),(int) x.getCantidad());
-		}
+		p = manager.merge(p);
+		String sql = "from PedidoProducto p where p.pedido.id = "+p.getId()+"";
+		Set<PedidoProducto>productos = (Set<PedidoProducto>)manager.createQuery(sql,PedidoProducto.class).getResultList().stream().collect(Collectors.toSet());
 		manager.getTransaction().commit();
 		manager.close();
 		return productos;
+	}
+
+	public List<Pedido> listPedidosByFormaDePago(FormaDePago fp) {
+		List<Pedido> pedidos = null;
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		String querySql = "from Lista l where idFormaPago = " + fp.getId() + "";
+		pedidos = (List<Pedido>) manager.createQuery(querySql, Pedido.class).getResultList();
+		manager.getTransaction().commit();
+		manager.close();
+		return pedidos;
+	}
+
+	public List<Pedido> listPedidosByMesa(Mesa m) {
+		List<Pedido> pedidos = null;
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		String querySql = "from Lista l where idMesa = " + m.getId() + "";
+		pedidos = (List<Pedido>) manager.createQuery(querySql, Pedido.class).getResultList();
+		manager.getTransaction().commit();
+		manager.close();
+		return pedidos;
+
+	}
+	public void addProductoToPedido(Producto p, Pedido pe, double cantidad) {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+			p = manager.merge(p);
+			pe = manager.merge(pe);
+			
+			PedidoProducto pp = new PedidoProducto(pe, p, cantidad);
+			pe.setTotal(pe.getTotal()+(p.getPrecio()*cantidad));
+			manager.persist(pp);
+			pe.addProducto(p, cantidad);
+		manager.getTransaction().commit();
+		manager.close();
 	}
 }

@@ -54,5 +54,16 @@ public class Categoria implements Serializable{
 	public String toString() {
 		return "Categoria [id=" + id + ", nombre=" + nombre + "]";
 	}
-	
+	public void addProducto(Producto p) {
+		if(!productos.contains(p)) {
+			productos.add(p);
+			p.addCategoria(this);
+		}
+	}
+	public void removeProducto(Producto p) {
+		if(productos.contains(p)) {
+			productos.remove(p);
+			p.removeCategoria(this);
+		}
+	}
 }

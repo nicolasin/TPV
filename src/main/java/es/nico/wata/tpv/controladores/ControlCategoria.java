@@ -104,4 +104,20 @@ public class ControlCategoria implements ControlInterface<Categoria, Long> {
 		}
 
 	}
+
+	public List<Categoria> getByName(String name) throws ControlException {
+		EntityManager manager = emf.createEntityManager();
+		manager.getTransaction().begin();
+		List<Categoria> t = new ArrayList<Categoria>();
+		try {
+			t = manager.createQuery("from Categoria c where c.nombre LIKE '%"+name+"%' ",Categoria.class).getResultList();
+			manager.getTransaction().commit();
+
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectEntity("Incorrect Entity type");
+		} finally {
+			manager.close();
+		}
+		return t;
+	}
 }
